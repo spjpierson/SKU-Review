@@ -19,6 +19,14 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     WebView webView;
@@ -49,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webView.clearCache(true);
+
+        readHistory();
         camera_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
@@ -64,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                     // Validate input length and format
                     if (isValidInput(input)) {
                         performSearch(input);
+                        appendHistory(input);
                     } else {
                         displayErrorSnackbar();
                     }
@@ -101,4 +112,50 @@ public class MainActivity extends AppCompatActivity {
         //Snackbar.make(findViewById(R.id.root_layout), "Please enter a valid 11-12 digit number.", Snackbar.LENGTH_LONG).show();
         Toast.makeText(getApplicationContext(),"Please enter a valid 11-12 digit number.",Toast.LENGTH_LONG).show();
     }
+
+    private void appendHistory(String skuNumber) {
+        try {
+            FileOutputStream fos = openFileOutput("history.txt", MODE_APPEND);
+            fos.write((skuNumber + "\n").getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<String> readHistory() {
+        List<String> historyItems = new ArrayList<>();
+
+        try {
+            FileInputStream fis = openFileInput("history.txt");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader reader = new BufferedReader(isr);
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                historyItems.add(line);
+                TextView sku_number = new TextView(getApplicationContext());
+                sku_number.setText(line);
+                history_container.addView(sku_number);
+                WebView history = new WebView(getApplicationContext());
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, 500);
+
+                history.setLayoutParams(params);
+                history.clearCache(true);
+                String searchQuery = "https://www.google.com/search?q=" + line;
+                WebSettings settings = history.getSettings();
+                settings.setJavaScriptEnabled(true);
+                history.loadUrl(searchQuery);
+                history_container.addView(history);
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return historyItems;
+    }
+
 }
