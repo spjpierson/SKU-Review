@@ -24,7 +24,7 @@
         <LinearLayout
             android:id="@+id/search_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:orientation="horizontal">
 
             <ImageButton
@@ -32,8 +32,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:contentDescription="@string/camera_button_description"
                 android:background="@color/white"
-                android:src="@tools:sample/avatars"
+                android:src="@android:drawable/ic_menu_camera"
                 app:srcCompat="@android:drawable/ic_menu_camera" />
 
             <EditText
@@ -41,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="9"
-                android:text="EditText" />
+                android:hint="@string/enter_sku" />
 
         </LinearLayout>
 
