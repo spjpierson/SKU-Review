@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/whole_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -21,6 +22,7 @@
             android:layout_height="250dp" />
 
         <LinearLayout
+            android:id="@+id/search_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -30,39 +32,42 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="@color/white"
                 android:src="@tools:sample/avatars"
                 app:srcCompat="@android:drawable/ic_menu_camera" />
 
             <EditText
-                android:id="@+id/textView"
+                android:id="@+id/input_edit_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="9"
                 android:text="EditText" />
 
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/button_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/online_search_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:text="@string/search_online" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/database_search_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:text="@string/search_database" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/history_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"></LinearLayout>
