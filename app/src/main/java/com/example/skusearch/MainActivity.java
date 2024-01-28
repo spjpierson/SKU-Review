@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                     if (isValidInput(input)) {
                         performSearch(input);
                         appendHistory(input);
+                        history_container.removeAllViews();
+                        readHistory();
                     } else {
                         displayErrorSnackbar();
                     }
@@ -131,19 +133,27 @@ public class MainActivity extends AppCompatActivity {
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader reader = new BufferedReader(isr);
 
+            ArrayList sku = new ArrayList<String>();
+
             String line;
             while ((line = reader.readLine()) != null) {
-                historyItems.add(line);
+                sku.add(line);
+
+
+            }
+
+            for(int i = sku.size()-1; i > -1; --i){
+                historyItems.add(sku.get(i).toString());
                 TextView sku_number = new TextView(getApplicationContext());
-                sku_number.setText(line);
+                sku_number.setText(sku.get(i).toString());
                 history_container.addView(sku_number);
                 WebView history = new WebView(getApplicationContext());
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, 500);
+                        LinearLayout.LayoutParams.MATCH_PARENT, 6000);
 
                 history.setLayoutParams(params);
                 history.clearCache(true);
-                String searchQuery = "https://www.google.com/search?q=" + line;
+                String searchQuery = "https://www.google.com/search?q=" + sku.get(i).toString();
                 WebSettings settings = history.getSettings();
                 settings.setJavaScriptEnabled(true);
                 history.loadUrl(searchQuery);
@@ -154,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
 
         return historyItems;
     }
