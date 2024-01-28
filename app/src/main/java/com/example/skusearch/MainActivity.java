@@ -30,7 +30,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     WebView webView;
-    ImageButton camera_button;
     EditText input_edit_text;
     Button search_online_button;
     Button search_database_button;
@@ -45,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         webView = findViewById(R.id.web_view);
 
-        camera_button = findViewById(R.id.camera_button);
-
         input_edit_text = findViewById(R.id.input_edit_text);
 
         search_online_button = findViewById(R.id.online_search_button);
@@ -59,13 +56,7 @@ public class MainActivity extends AppCompatActivity {
         webView.clearCache(true);
 
         readHistory();
-        camera_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view){
-                Toast.makeText(getApplicationContext(), "Camera button was press", Toast.LENGTH_SHORT).show();
 
-            }
-        });
 
         search_online_button.setOnClickListener(new View.OnClickListener() {
             @Override
