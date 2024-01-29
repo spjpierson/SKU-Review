@@ -18,6 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Firebase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -35,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
     Button search_database_button;
     LinearLayout history_container;
 
+
     WebSettings webSettings;
+
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,9 +85,18 @@ public class MainActivity extends AppCompatActivity {
         search_database_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String input = input_edit_text.getText().toString();
-                String toastText = "Search Database: "+input;
-                Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT).show();
+                String email = "spjpierson@gmail.com";
+                String password = "password";
+
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
+                    user = task.getResult().getUser();
+                    String message = "Database was login by: " + user.getEmail();
+                    Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+
+                }).addOnFailureListener(task ->{
+                    String message = task.getMessage().toString();
+                    Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();;
+                });
             }
         });
 
