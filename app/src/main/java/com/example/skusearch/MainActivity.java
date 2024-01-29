@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     WebSettings webSettings;
 
-    FirebaseUser user;
+    FirebaseUser user = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,15 +88,20 @@ public class MainActivity extends AppCompatActivity {
                 String email = "spjpierson@gmail.com";
                 String password = "password";
 
-                FirebaseAuth.getInstance().signInWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
-                    user = task.getResult().getUser();
-                    String message = "Database was login by: " + user.getEmail();
-                    Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
-
-                }).addOnFailureListener(task ->{
-                    String message = task.getMessage().toString();
-                    Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();;
-                });
+                if(user == null) {
+                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    user = task.getResult().getUser();
+                                    String message = "Database was logged in by: " + user.getEmail();
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                } else {
+                                    // Handle failure gracefully
+                                    String message = "Login failed: " + task.getException().getMessage();
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                }
             }
         });
 
