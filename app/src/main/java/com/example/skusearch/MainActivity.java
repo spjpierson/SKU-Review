@@ -1,6 +1,7 @@
 
 package com.example.skusearch;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -21,6 +22,9 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -101,6 +105,26 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                                 }
                             });
+                }else{
+                     //Look key up value
+                    String searchKey = input_edit_text.getText().toString();
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                    databaseReference.child(searchKey).get().addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            DataSnapshot snapshot = task.getResult();
+                            if(snapshot.exists()){
+                                String value = snapshot.getValue(String.class);
+                                webView.loadData(value,"text.html","UTF-8");
+                            }else{
+                                webView.loadData("No item found","text.html","UTF-8");
+                                openProductDescriptionDialog();
+                            }
+                        }else{
+                            String message = "Database error: " + task.getException().getMessage();
+                            Toast.makeText(getApplicationContext(),message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                 }
             }
         });
@@ -179,6 +203,32 @@ public class MainActivity extends AppCompatActivity {
 
 
         return historyItems;
+    }
+
+    public void openProductDescriptionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_product_description, null);
+        final EditText inputDialog = dialogView.findViewById(R.id.input_dialog); // Assuming EditText ID
+
+        builder.setView(dialogView)
+                .setPositiveButton("Enter", (dialog, which) -> {
+                    String productDescription = inputDialog.getText().toString();
+                    String productKey = input_edit_text.getText().toString(); // Assuming EditText ID
+
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                    databaseReference.child(productKey).setValue(productDescription)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(this, "Product description added successfully", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(this, "Error adding product description", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 }

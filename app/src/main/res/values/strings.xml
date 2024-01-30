@@ -3,6 +3,7 @@
     <string name="search_online">Search Online</string>
     <string name="search_database">Search Database</string>
     <string name="camera_button_description">A button to open camera and have the phone read the sku</string>
-    <string name ="enter_sku">Enter Sku</string>
-    <string name ="scroll">Scroll</string>
+    <string name="enter_sku">Enter Sku</string>
+    <string name="scroll">Scroll</string>
+    <string name="product_desc">Enter in product description here</string>
 </resources>
