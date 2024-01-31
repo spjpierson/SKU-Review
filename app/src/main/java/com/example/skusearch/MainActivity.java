@@ -142,8 +142,26 @@ public class MainActivity extends AppCompatActivity {
         search_database_button.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Toast.makeText(getApplicationContext(),"Update here",Toast.LENGTH_SHORT).show();
-                return false;
+                String searchKey = input_edit_text.getText().toString(); // Get key from input
+
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                databaseReference.child(searchKey).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot snapshot = task.getResult();
+                        if (snapshot.exists()) {
+                            // Key exists, show dialog to update value
+                            showUpdateDialog(searchKey, snapshot.getValue(String.class));
+                        } else {
+                            // Key doesn't exist, show Toast
+                            Toast.makeText(getApplicationContext(), "No item associated with that value", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Handle database error
+                        Toast.makeText(getApplicationContext(), "Database error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                return true; // Consume the long click event
             }
         });
 
@@ -284,5 +302,40 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    // Define the showUpdateDialog method
+    private void showUpdateDialog(String searchKey, String currentValue) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText inputDialog = new EditText(this); // Input field for new value
+        inputDialog.setText(currentValue); // Pre-fill with current value
+
+        builder.setView(inputDialog)
+                .setTitle("Update Value")
+                .setPositiveButton("Update", (dialog, which) -> {
+                    String newValue = inputDialog.getText().toString();
+                    updateDatabaseValue(searchKey, newValue);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // Define the updateDatabaseValue method
+    private void updateDatabaseValue(String searchKey, String newValue) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        databaseReference.child(searchKey).setValue(newValue)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Value updated successfully", Toast.LENGTH_SHORT).show();
+                        appendHistory(input_edit_text.getText().toString() + "Update Value ->"+newValue,"Database");
+                        history_container.removeAllViews();
+                        readHistory(); // Refresh history display
+                    } else {
+                        Toast.makeText(this, "Error updating value", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
 
 }
