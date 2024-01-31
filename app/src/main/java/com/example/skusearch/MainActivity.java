@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private String file = "history_test_8.txt";
+    private String file = "history_test_12.txt";
 
 
     WebView webView;
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
         webView.clearCache(true);
 
-        //readHistory();
+        readHistory();
 
 
         search_online_button.setOnClickListener(new View.OnClickListener() {
@@ -124,11 +124,7 @@ public class MainActivity extends AppCompatActivity {
                             }else{
                                 webView.loadData("No item found","text.html","UTF-8");
                                 openProductDescriptionDialog();
-
                                 String input = input_edit_text.getText().toString() + " :  No item found";
-                                history_container.removeAllViews();
-                                appendHistory(input,"Database");
-
                             }
                         }else{
                             String message = "Database error: " + task.getException().getMessage();
@@ -256,12 +252,24 @@ public class MainActivity extends AppCompatActivity {
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(this, "Product description added successfully", Toast.LENGTH_SHORT).show();
+                                    String input = input_edit_text.getText().toString() + " :  Insert new Item -> " + productDescription;
+                                    history_container.removeAllViews();
+                                    appendHistory(input,"Database");
+                                    history_container.removeAllViews();
+                                    readHistory();
                                 } else {
                                     Toast.makeText(this, "Error adding product description", Toast.LENGTH_SHORT).show();
                                 }
                             });
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    String input = input_edit_text.getText().toString() + " :  No item found";
+                    history_container.removeAllViews();
+                    appendHistory(input,"Database");
+                    history_container.removeAllViews();
+                    readHistory();
+                    dialog.dismiss();
+                });
 
         AlertDialog dialog = builder.create();
         dialog.show();
