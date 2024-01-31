@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private String file = "history_test_12.txt";
+    private String file = "history_sku_search.txt";
 
 
     WebView webView;
@@ -53,6 +53,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String email = "spjpierson@gmail.com";
+        String password = "password";
+            if (user == null) {
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                user = task.getResult().getUser();
+                                String message = "Database was logged in by: " + user.getEmail();
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            } else {
+                                // Handle failure gracefully
+                                String message = "Login failed: " + task.getException().getMessage();
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            }
+                        });
+            }
 
         webView = findViewById(R.id.web_view);
 
