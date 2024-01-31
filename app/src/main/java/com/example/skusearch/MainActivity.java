@@ -93,49 +93,59 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String email = "spjpierson@gmail.com";
                 String password = "password";
-
-                if(user == null) {
-                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    user = task.getResult().getUser();
-                                    String message = "Database was logged in by: " + user.getEmail();
-                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                if(isValidInput(input_edit_text.getText().toString())) {
+                    if (user == null) {
+                        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        user = task.getResult().getUser();
+                                        String message = "Database was logged in by: " + user.getEmail();
+                                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                    } else {
+                                        // Handle failure gracefully
+                                        String message = "Login failed: " + task.getException().getMessage();
+                                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                    } else {
+                        //Look key up value
+                        String searchKey = input_edit_text.getText().toString();
+                        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                        databaseReference.child(searchKey).get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DataSnapshot snapshot = task.getResult();
+                                if (snapshot.exists()) {
+                                    String value = snapshot.getValue(String.class);
+                                    webView.loadData(value, "text.html", "UTF-8");
+                                    String input = input_edit_text.getText().toString() + " : " + value;
+                                    appendHistory(input, "Database");
+                                    history_container.removeAllViews();
+                                    readHistory();
                                 } else {
-                                    // Handle failure gracefully
-                                    String message = "Login failed: " + task.getException().getMessage();
-                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                    webView.loadData("No item found", "text.html", "UTF-8");
+                                    openProductDescriptionDialog();
+                                    String input = input_edit_text.getText().toString() + " :  No item found";
                                 }
-                            });
-                }else{
-                     //Look key up value
-                    String searchKey = input_edit_text.getText().toString();
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                    databaseReference.child(searchKey).get().addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            DataSnapshot snapshot = task.getResult();
-                            if(snapshot.exists()){
-                                String value = snapshot.getValue(String.class);
-                                webView.loadData(value,"text.html","UTF-8");
-                                String input = input_edit_text.getText().toString() + " : " +value;
-                                appendHistory(input,"Database");
-                                history_container.removeAllViews();
-                                readHistory();
-                            }else{
-                                webView.loadData("No item found","text.html","UTF-8");
-                                openProductDescriptionDialog();
-                                String input = input_edit_text.getText().toString() + " :  No item found";
+                            } else {
+                                String message = "Database error: " + task.getException().getMessage();
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                             }
-                        }else{
-                            String message = "Database error: " + task.getException().getMessage();
-                            Toast.makeText(getApplicationContext(),message, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                        });
 
+                    }
+                } else{
+                    Toast.makeText(getApplicationContext(),"Please Enter In 11-12 digital Number",Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
+        search_database_button.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(getApplicationContext(),"Update here",Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
     }
 
