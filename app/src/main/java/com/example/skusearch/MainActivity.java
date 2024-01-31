@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private String file = "history_test_8.txt";
+
 
     WebView webView;
     EditText input_edit_text;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
         webView.clearCache(true);
 
-        readHistory();
+        //readHistory();
 
 
         search_online_button.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                     // Validate input length and format
                     if (isValidInput(input)) {
                         performSearch(input);
-                        appendHistory(input);
+                        appendHistory(input,"Online");
                         history_container.removeAllViews();
                         readHistory();
                     } else {
@@ -115,9 +117,18 @@ public class MainActivity extends AppCompatActivity {
                             if(snapshot.exists()){
                                 String value = snapshot.getValue(String.class);
                                 webView.loadData(value,"text.html","UTF-8");
+                                String input = input_edit_text.getText().toString() + " : " +value;
+                                appendHistory(input,"Database");
+                                history_container.removeAllViews();
+                                readHistory();
                             }else{
                                 webView.loadData("No item found","text.html","UTF-8");
                                 openProductDescriptionDialog();
+
+                                String input = input_edit_text.getText().toString() + " :  No item found";
+                                history_container.removeAllViews();
+                                appendHistory(input,"Database");
+
                             }
                         }else{
                             String message = "Database error: " + task.getException().getMessage();
@@ -150,10 +161,10 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(),"Please enter a valid 11-12 digit number.",Toast.LENGTH_LONG).show();
     }
 
-    private void appendHistory(String skuNumber) {
+    private void appendHistory(String skuNumber, String searchType) {
         try {
-            FileOutputStream fos = openFileOutput("history.txt", MODE_APPEND);
-            fos.write((skuNumber + "\n").getBytes());
+            FileOutputStream fos = openFileOutput(file, MODE_APPEND);
+            fos.write((searchType + "_" + skuNumber + "\n").getBytes());
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -164,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> historyItems = new ArrayList<>();
 
         try {
-            FileInputStream fis = openFileInput("history.txt");
+            FileInputStream fis = openFileInput(file);
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader reader = new BufferedReader(isr);
 
@@ -178,21 +189,46 @@ public class MainActivity extends AppCompatActivity {
             }
 
             for(int i = sku.size()-1; i > -1; --i){
-                historyItems.add(sku.get(i).toString());
-                TextView sku_number = new TextView(getApplicationContext());
-                sku_number.setText(sku.get(i).toString());
-                history_container.addView(sku_number);
-                WebView history = new WebView(getApplicationContext());
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, 6000);
+                String searchType = ((String) sku.get(i)).substring(0, ((String) sku.get(i)).indexOf("_"));
+                String entry = ((String) sku.get(i)).substring(((String) sku.get(i)).indexOf("_") + 1);
 
-                history.setLayoutParams(params);
-                history.clearCache(true);
-                String searchQuery = "https://www.google.com/search?q=" + sku.get(i).toString();
-                WebSettings settings = history.getSettings();
-                settings.setJavaScriptEnabled(true);
-                history.loadUrl(searchQuery);
-                history_container.addView(history);
+
+
+
+                if (searchType.equals("Online")) {
+                    historyItems.add(sku.get(i).toString());
+
+                    TextView state = new TextView(getApplicationContext());
+                    state.setText(searchType);
+
+                    history_container.addView(state);
+
+                    TextView sku_number = new TextView(getApplicationContext());
+                    sku_number.setText(entry);
+
+                    history_container.addView(sku_number);
+                    WebView history = new WebView(getApplicationContext());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT, 6000);
+
+                    history.setLayoutParams(params);
+                    history.clearCache(true);
+                    String searchQuery = "https://www.google.com/search?q=" + entry;
+                    WebSettings settings = history.getSettings();
+                    settings.setJavaScriptEnabled(true);
+                    history.loadUrl(searchQuery);
+                    history_container.addView(history);
+                } else if (searchType.equals("Database")) {
+
+                    TextView databaseText = new TextView(getApplicationContext());
+                    databaseText.setText(searchType);
+
+                    TextView sku_number_and_value = new TextView(getApplicationContext());
+                    sku_number_and_value.setText(entry);
+
+                    history_container.addView(databaseText);
+                    history_container.addView(sku_number_and_value);
+                }
             }
 
             reader.close();
